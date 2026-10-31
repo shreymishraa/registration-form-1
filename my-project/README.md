@@ -1,16 +1,18 @@
-# React + Vite
+# HiPATH registration and login
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The React app uses an Express API and PostgreSQL for account registration and login. Passwords are hashed with bcrypt before they are stored. Gmail addresses work as regular email addresses; this project does not use Google OAuth.
 
-Currently, two official plugins are available:
+## Local setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Create a PostgreSQL database named `hipath` (or choose another database name).
+2. Copy `.env.example` to `.env` and set `DATABASE_URL` to your PostgreSQL connection string. Set `JWT_SECRET` to a random secret of at least 32 characters.
+3. Install packages with `npm install`.
+4. Run `npm run dev`. This starts the Vite app on port 5173 and the API on port 3001. The API creates its `users` table on startup.
 
-## React Compiler
+For example, a local connection string looks like:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```text
+postgresql://postgres:your_password@localhost:5432/hipath
+```
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The registration page creates an account and signs it in. Use the same email and password on the login page. Production deployments should set `DATABASE_URL` and `JWT_SECRET` through the hosting provider's environment settings.
