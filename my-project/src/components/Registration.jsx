@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -12,7 +12,7 @@ import {
   Home,
   Lock,
 } from "lucide-react";
-import { registerAccount } from "../lib/auth";
+import { loginWithGoogle, registerAccount } from "../lib/auth";
 
 // Available registration roles
 const roles = [
@@ -100,6 +100,51 @@ function RegistrationForm({ role = "director" }) {
   });
 
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) return undefined;
+
+    let cancelled = false;
+    const initializeGoogleSignIn = () => {
+      if (cancelled || !window.google?.accounts?.id) return;
+      window.google.accounts.id.initialize({
+        client_id: clientId,
+        callback: async ({ credential }) => {
+          setSubmitError("");
+          try {
+            await loginWithGoogle(credential);
+            navigate("/dashboard");
+          } catch (googleError) {
+            setSubmitError(googleError.message);
+          }
+        },
+      });
+      const button = document.getElementById("registration-google-signin-button");
+      if (button) window.google.accounts.id.renderButton(button, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        width: 360,
+      });
+    };
+
+    if (window.google?.accounts?.id) {
+      initializeGoogleSignIn();
+      return () => { cancelled = true; };
+    }
+
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = initializeGoogleSignIn;
+    script.onerror = () => setSubmitError("Could not load Google sign-in. Check your internet connection and try again.");
+    document.head.appendChild(script);
+    return () => { cancelled = true; };
+  }, [navigate]);
 
   // Update form fields
   const updateForm = (e) => {
@@ -440,6 +485,14 @@ function RegistrationForm({ role = "director" }) {
             {isSubmitting ? "Creating account…" : "Let's go ✦"}
           </button>
         </form>
+
+        <div className="registration-google-section">
+          <p className="registration-google-label">Already have an account? Sign in with Google</p>
+          <div id="registration-google-signin-button" className="google-signin-button" />
+          {!import.meta.env.VITE_GOOGLE_CLIENT_ID && (
+            <p className="google-setup-note">Google sign-in is unavailable until VITE_GOOGLE_CLIENT_ID is configured.</p>
+          )}
+        </div>
 
         {/* Login Link */}
         <p className="login-text">

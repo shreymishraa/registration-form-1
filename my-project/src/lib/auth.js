@@ -22,6 +22,10 @@ export function loginAccount(email, password) {
   return requestAuth("login", { email, password });
 }
 
+export function loginWithGoogle(credential) {
+  return requestAuth("google", { credential });
+}
+
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem("isLoggedIn");

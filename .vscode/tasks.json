@@ -52,6 +52,19 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Run HiPATH app (Vite + API)",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"--prefix",
+				"my-project",
+				"run",
+				"dev"
+			],
+			"isBackground": true,
+			"problemMatcher": []
 		}
 	]
 }
